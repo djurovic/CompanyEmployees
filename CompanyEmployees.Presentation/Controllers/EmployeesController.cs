@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
+using Shared.RequestFeatures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace CompanyEmployees.Presentation.Controllers
@@ -20,18 +22,21 @@ namespace CompanyEmployees.Presentation.Controllers
         public EmployeesController(IServiceManager service) => _service = service;
 
         [HttpGet]
-        public IActionResult GetEmployeesForCompany(Guid companyId)
+        public async Task<IActionResult> GetEmployeesForCompany(Guid companyId,
+                            [FromQuery] EmployeeParameters employeeParameters)
         {
-            var employees = _service.EmployeeService.GetEmployees(companyId, trackChanges:
-            false);
-            return Ok(employees);
+            var pagedResult = await _service.EmployeeService.GetEmployeesAsync(companyId,
+            employeeParameters, trackChanges: false);
+            Response.Headers.Add("X-Pagination",
+            JsonSerializer.Serialize(pagedResult.metaData));
+            return Ok(pagedResult.employees);
         }
 
 
         [HttpGet("{id:guid}", Name = "GetEmployeeForCompany")]
         public IActionResult GetEmployeeForCompany(Guid companyId, Guid id)
         {
-            var employee = _service.EmployeeService.GetEmployee(companyId, id,
+            var employee = _service.EmployeeService.GetEmployeeAsync(companyId, id,
             trackChanges: false);
             return Ok(employee);
         }
@@ -45,7 +50,7 @@ namespace CompanyEmployees.Presentation.Controllers
             if (!ModelState.IsValid)
                 return UnprocessableEntity(ModelState);
             var employeeToReturn =
-            _service.EmployeeService.CreateEmployeeForCompany(companyId, employee,
+            _service.EmployeeService.CreateEmployeeForCompanyAsync(companyId, employee,
             trackChanges: false);
             return CreatedAtRoute("GetEmployeeForCompany", new
             {
@@ -61,7 +66,7 @@ namespace CompanyEmployees.Presentation.Controllers
         [HttpDelete("{id:guid}")]
         public IActionResult DeleteEmployeeForCompany(Guid companyId, Guid id)
         {
-            _service.EmployeeService.DeleteEmployeeForCompany(companyId, id, trackChanges: false);
+            _service.EmployeeService.DeleteEmployeeForCompanyAsync(companyId, id, trackChanges: false);
 
             return NoContent();
         }
@@ -76,7 +81,7 @@ namespace CompanyEmployees.Presentation.Controllers
             if(!ModelState.IsValid)
                 return UnprocessableEntity(ModelState);
 
-            _service.EmployeeService.UpdateEmployeeForCompany(companyId, id, employee,
+            _service.EmployeeService.UpdateEmployeeForCompanyAsync(companyId, id, employee,
             compTrackChanges: false, empTrackChanges: true);
             return NoContent();
         }
@@ -87,7 +92,7 @@ namespace CompanyEmployees.Presentation.Controllers
         {
             if (patchDoc is null)
                 return BadRequest("patchDoc object sent from client is null.");
-            var result = _service.EmployeeService.GetEmployeeForPatch(companyId, id,
+            var result = _service.EmployeeService.GetEmployeeForPatchAsync(companyId, id,
             compTrackChanges: false,
             empTrackChanges: true);
             patchDoc.ApplyTo(result.employeeToPatch, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState);
@@ -96,7 +101,7 @@ namespace CompanyEmployees.Presentation.Controllers
             if (!ModelState.IsValid)
                 return UnprocessableEntity(ModelState);
 
-            _service.EmployeeService.SaveChangesForPatch(result.employeeToPatch, result.employeeEntity);
+            _service.EmployeeService.SaveChangesForPatchAsync(result.employeeToPatch, result.employeeEntity);
             return NoContent();
         }
 
