@@ -90,7 +90,7 @@ namespace CompanyEmployees.Presentation.Controllers
             return NoContent();
         }
 
-        [HttpPatch("{id:guid}")]
+        /*[HttpPatch("{id:guid}")]
         public IActionResult PartiallyUpdateEmployeeForCompany(Guid companyId, Guid id,
                                                                 [FromBody] JsonPatchDocument<EmployeeForUpdateDto> patchDoc)
         {
@@ -107,7 +107,7 @@ namespace CompanyEmployees.Presentation.Controllers
 
             _service.EmployeeService.SaveChangesForPatchAsync(result.employeeToPatch, result.employeeEntity);
             return NoContent();
-        }
+        }*/
 
     }
 }

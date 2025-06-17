@@ -25,8 +25,8 @@ namespace CompanyEmployees.Utility
         {
             var shapedEmployees = ShapeData(employeesDto, fields);
 
-            if (ShouldGenerateLinks(httpContext))
-                return ReturnLinkedEmployees(employeesDto, fields, companyId, httpContext, shapedEmployees);
+            /*if (ShouldGenerateLinks(httpContext))
+                return ReturnLinkedEmployees(employeesDto, fields, companyId, httpContext, shapedEmployees);*/
 
             return ReturnShapedEmployees(shapedEmployees);
         }
@@ -36,12 +36,12 @@ namespace CompanyEmployees.Utility
                 .Select(e => e.Entity)
                 .ToList();
 
-        private bool ShouldGenerateLinks(HttpContext httpContext)
+        /*private bool ShouldGenerateLinks(HttpContext httpContext)
         {
             var mediaType = (MediaTypeHeaderValue)httpContext.Items["AcceptHeaderMediaType"];
 
             return mediaType.SubTypeWithoutSuffix.EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
-        }
+        }*/
 
         private LinkResponse ReturnShapedEmployees(List<Entity> shapedEmployees) =>
             new LinkResponse { ShapedEntities = shapedEmployees };
