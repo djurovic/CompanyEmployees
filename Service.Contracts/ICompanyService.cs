@@ -1,4 +1,5 @@
-﻿using Shared.DataTransferObjects;
+﻿using Entities.Responses;
+using Shared.DataTransferObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,8 @@ namespace Service.Contracts
         Task UpdateCompanyAsync(Guid companyid, CompanyForUpdateDto companyForUpdate,
         bool trackChanges);
 
+        ApiBaseResponse GetAllCompanies(bool trackChanges);
+        ApiBaseResponse GetCompany(Guid companyId, bool trackChanges);
 
     }
 }

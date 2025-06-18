@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using CompanyEmployees.Presentation.Extensions;
+using Entities.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
+using Shared.DataTransferObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,21 +16,31 @@ namespace CompanyEmployees.Presentation.Controllers
     [Authorize]
     [ApiController]
     [ApiExplorerSettings(GroupName = "v2")]
-    public class CompaniesV2Controller : ControllerBase
+    public class CompaniesV2Controller : ApiControllerBase
     {
         private readonly IServiceManager _service;
 
         public CompaniesV2Controller(IServiceManager service) => _service = service;
 
         [HttpGet]
-        public async Task<IActionResult> GetCompanies()
+        public IActionResult GetCompanies()
         {
-            var companies = await _service.CompanyService
-                .GetAllCompaniesAsync(trackChanges: false);
-
-            var companiesV2 = companies.Select(x => $"{x.Name} V2");
-
-            return Ok(companiesV2);
+            var baseResult = _service.CompanyService.GetAllCompanies(trackChanges: false);
+            var companies = baseResult.GetResult<IEnumerable<CompanyDto>>();
+            return Ok(companies);
         }
+
+
+        [HttpGet("{id:guid}")]
+        public IActionResult GetCompany(Guid id)
+        {
+            var baseResult = _service.CompanyService.GetCompany(id, trackChanges: false);
+            if (!baseResult.Success)
+                return ProcessError(baseResult);
+            var company = baseResult.GetResult<CompanyDto>();
+
+            return Ok(company);
+        }
+
     }
 }
